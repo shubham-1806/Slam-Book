@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Alumnis</title>
+</head>
+<body>
+    <h1>All Alumnis</h1>
+    <div>
+        <a href="/alumnis/new">Register an Alumni</a>
+    </div>
+    <ul>
+        <% for(let alumni of alumnis) {%>
+        <li><a href="/alumnis/<%=alumni._id%>"><%=alumni.name%></a></li>
+        <%}%>
+    </ul>
+</body>
+</html>
