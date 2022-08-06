@@ -7,12 +7,12 @@ const Alumni = require('./models/alumni');
 const methodOverride = require('method-override');
 const alumni = require('./models/alumni');
 const Comment = require("./models/comment")
+const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/slam-book'
 
-mongoose.connect('mongodb+srv://admin:D7TJPSAZV69CZ3E8@cluster0.adl24w8.mongodb.net/?retryWrites=true&w=majority',{
+mongoose.connect(dbUrl,{
     useNewUrlParser : true,
     useUnifiedTopology : true
 });
-
 
 const db=mongoose.connection;
 
@@ -26,6 +26,10 @@ app.set('views',path.join(__dirname,'views'));
 app.use(express.urlencoded({extended : true}));
 app.use(methodOverride('_method'));
 
+
+app.get('/auth/callback',(req,res)=>{
+    res.send(`processing...${req.params}`);
+})
 
 app.get('/',(req,res)=>{
     res.render('home');
@@ -102,3 +106,6 @@ app.listen(port,()=>{
 
 
 // sudo docker run -dp 27017:27017 -v /home/shubham/Documents/data/db:/data/db --name local-mongo --restart=always mongo
+//Or23iPZooMnBaNFRpC9-YDlOx8zcdT3.
+// mongodb+srv://admin:D7TJPSAZV69CZ3E8@cluster0.adl24w8.mongodb.net/?retryWrites=true&w=majority
+
