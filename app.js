@@ -93,8 +93,9 @@ app.delete('/alumnis/:id/comments/:comment_id',async(req,res)=>{
     res.redirect(`/alumnis/${id}`);
 })
 
-app.listen(80,()=>{
-    console.log("Listening on 80");
+const port = process.env.PORT || 3000;
+app.listen(port,()=>{
+    console.log(`Listening on ${port}`);
 })
 
 
