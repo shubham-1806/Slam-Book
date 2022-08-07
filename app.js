@@ -32,26 +32,24 @@ app.use(methodOverride('_method'));
 
 app.get('/auth/callback',(req,res)=>{
     const auth_code = req.query.code;
-    res.send(`this is what we got ${auth_code}`);
-    // if(auth_code){
-    //     axios.post('https://auth.delta.nitt.edu/api/oauth/token', {
-    //         client_id : Client_Id,
-    //         client_secret : Client_Secret,
-    //         grant_type : 'authorization_code',
-    //         code : auth_code,
-    //         redirect_uri : 'https://glacial-river-34992.herokuapp.com/auth/callback',
-    //     })
-    //     .then(function (response) {
-    //         console.log(response);
-    //     })
-    //     .catch(function (error) {
-    //         console.log(error);
-    //     });
-    //     res.send(`processing...done`);
-    // }
-    // else{
-    //     res.redirect(`/`);
-    // }
+    if(auth_code){
+        axios.post('https://auth.delta.nitt.edu/api/oauth/token', {
+            client_id : Client_Id,
+            client_secret : Client_Secret,
+            grant_type : 'authorization_code',
+            code : auth_code,
+            redirect_uri : 'https://glacial-river-34992.herokuapp.com/auth/callback',
+        })
+        .then(function (response) {
+            res.send(response.body.access_token);
+        })
+        .catch(function (error) {
+            res.send("OOPs error!!!")
+        });
+    }
+    else{
+        res.redirect(`/`);
+    }
 })
 
 app.get('/',(req,res)=>{
