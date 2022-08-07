@@ -12,6 +12,7 @@ const axios = require('axios');
 const { response } = require('express');
 const Client_Secret = process.env.client_secret;
 const Client_Id = process.env.client_id;
+const qs = require('qs');
 
 mongoose.connect(dbUrl,{
     useNewUrlParser : true,
@@ -60,17 +61,26 @@ app.use(methodOverride('_method'));
 app.get('/auth/callback',(req,res)=>{
     const auth_code = req.query.code;
     if(auth_code){
-        axios.post('https://auth.delta.nitt.edu/api/oauth/token',new URLSearchParams({
-            client_id : Client_Id,
-            client_secret : Client_Secret,
-            grant_type : 'authorization_code',
-            code : auth_code,
-            redirect_uri : 'https://glacial-river-34992.herokuapp.com/auth/callback'
-        }))
-        .then(function(response) {
-            res.send(response.body.access_token);
+        var data = qs.stringify({
+            'client_id': Client_Id,
+            'client_secret': Client_Secret,
+            'grant_type': 'authorization_code',
+            'code': auth_code,
+            'redirect_uri': 'https://glacial-river-34992.herokuapp.com/auth/callback' 
+        });
+        var config = {
+            method: 'post',
+            url: 'https://auth.delta.nitt.edu/api/oauth/token',
+            headers: { 
+              'Content-Type': 'application/x-www-form-urlencoded', 
+            },
+            data : data
+        };
+        axios(config)
+        .then(function (response) {
+            res.send(JSON.stringify(response));
         })
-        .catch(function(error){
+        .catch(function (error) {
             res.send(JSON.stringify(error));
         });
     }
