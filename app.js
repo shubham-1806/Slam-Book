@@ -33,12 +33,14 @@ app.use(methodOverride('_method'));
 app.get('/auth/callback',(req,res)=>{
     const auth_code = req.query.code;
     if(auth_code){
-        axios.post('https://auth.delta.nitt.edu/api/oauth/token', {
-            client_id : Client_Id,
-            client_secret : Client_Secret,
-            grant_type : 'authorization_code',
-            code : auth_code,
-            redirect_uri : 'https://glacial-river-34992.herokuapp.com/auth/callback',
+        axios.post('https://auth.delta.nitt.edu/api/oauth/token', { 
+            params : {
+                client_id : Client_Id,
+                client_secret : Client_Secret,
+                grant_type : 'authorization_code',
+                code : auth_code,
+                redirect_uri : 'https://glacial-river-34992.herokuapp.com/auth/callback',
+            }
         })
         .then(function (response) {
             res.send(response.body.access_token);
@@ -128,5 +130,4 @@ app.listen(port,()=>{
 
 // sudo docker run -dp 27017:27017 -v /home/shubham/Documents/data/db:/data/db --name local-mongo --restart=always mongo
 // GWo_lbhI8Qbk4awzRi3nvwjQa7cQYuGl
-// mongodb+srv://admin:D7TJPSAZV69CZ3E8@cluster0.adl24w8.mongodb.net/?retryWrites=true&w=majority
 
