@@ -86,7 +86,7 @@ app.post('/reg',(req,res)=>{
     const id = req.body.id;
     const type = req.body.type;
     if(type == "alumni"){
-        const initial = await Alumni.find({id:`${id}`});
+        const initial = await Alumni.find({id:`${id}`}).exec();
         if(initial){
             const msg = {text:"again"}
             res.send(msg);
@@ -99,7 +99,7 @@ app.post('/reg',(req,res)=>{
         }
     }
     else{
-        const initial = await Student.find({id:`${id}`});
+        const initial = await Student.find({id:`${id}`}).exec();
         if(initial){
             const msg = {text:"again"}
             res.send(msg);
