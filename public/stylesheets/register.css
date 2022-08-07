@@ -1,0 +1,14 @@
+.form{
+    padding-top: 10%;
+    width: 30%;
+    margin: auto;
+    text-align: center;
+}
+.heading{
+    width: 30%;
+    margin: auto;
+    text-align: center;
+}
+.form > div{
+    padding-bottom: 50px;
+}

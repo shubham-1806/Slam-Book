@@ -3,7 +3,7 @@ const Schema = mongoose.Schema;
 
 const AlumniSchema = new Schema({
     name : String,
-    YearOfGraduation : Number,
+    Id : Number,
     comments : [
         {
             type : Schema.Types.ObjectId,

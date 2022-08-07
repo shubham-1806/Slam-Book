@@ -1,3 +1,6 @@
+if(process.env.NODE_ENV!=="production"){
+    require('dotenv').config();
+}
 
 const express = require('express');
 const app = express();
@@ -5,7 +8,7 @@ const path = require('path');
 const mongoose = require('mongoose');
 const Alumni = require('./models/alumni');
 const methodOverride = require('method-override');
-const alumni = require('./models/alumni');
+const Student = require('./models/student');
 const Comment = require("./models/comment")
 const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/slam-book'
 const axios = require('axios');
@@ -13,6 +16,7 @@ const { response } = require('express');
 const Client_Secret = process.env.client_secret;
 const Client_Id = process.env.client_id;
 const qs = require('qs');
+const { render } = require('ejs');
 
 mongoose.connect(dbUrl,{
     useNewUrlParser : true,
@@ -28,38 +32,13 @@ db.once("open",()=>{
 
 app.set('view engine','ejs');
 app.set('views',path.join(__dirname,'views'));
+app.use(express.static(__dirname + '/public'));
 app.use(express.urlencoded({extended : true}));
 app.use(methodOverride('_method'));
 
-
-// app.get('/auth/callback',(req,res)=>{
-//     const auth_code = req.query.code;
-//     if(auth_code){
-//         axios.post('https://auth.delta.nitt.edu/api/oauth/token',null, { 
-//             params : {
-//                 client_id : Client_Id,
-//                 client_secret : Client_Secret,
-//                 grant_type : 'authorization_code',
-//                 code : auth_code,
-//                 redirect_uri : 'https://glacial-river-34992.herokuapp.com/auth/callback',
-//             }
-//         })
-//         .then(function (response) {
-//             res.send(JSON.stringify(res));
-//         })
-//         .catch(function (error) {
-//             res.send(JSON.stringify(error));
-//         });
-//     }
-//     else{
-//         res.redirect(`/`);
-//     }
-// })
-
-
-
 app.get('/auth/callback',(req,res)=>{
     const auth_code = req.query.code;
+    const state = req.query.state;
     if(auth_code){
         var data = qs.stringify({
             'client_id': Client_Id,
@@ -78,10 +57,15 @@ app.get('/auth/callback',(req,res)=>{
         };
         axios(config)
         .then(function (response) {
-            res.send(JSON.stringify(response.data));
+            id_token = JSON.parse((Buffer.from((response.data.id_token.split(".")[1]),'base64').toString));
+            const email = id_token.email;
+            const name = id_token.name;
+            if(state == "register"){
+                res.redirect(`/reg?name=${name}&id=${id}`);    
+            } 
         })
         .catch(function (error) {
-            res.send(JSON.stringify(error));
+            res.redirect('/?text=invalidcreds');
         });
     }
     else{
@@ -89,8 +73,53 @@ app.get('/auth/callback',(req,res)=>{
     }
 })
 
+app.get('/reg',(req,res)=>{
+    const name = req.query.name;
+    const ID = req.query.id.slice(0,-9);
+    res.render('register.ejs',{name,ID});
+    // //const token = req.headers.authorization.substring(7);
+    // res.render('regis',{name,ID});
+})
+
+app.post('/reg',(req,res)=>{
+    const name = req.body.name;
+    const id = req.body.id;
+    const type = req.body.type;
+    if(type == "alumni"){
+        const initial = await Alumni.find({id:`${id}`});
+        if(initial){
+            const msg = {text:"again"}
+            res.send(msg);
+        }
+        else{
+            const alumni = new Alumni(name,id);
+            await alumni.save();
+            const msg = {text : "registered"}
+            res.send(msg);
+        }
+    }
+    else{
+        const initial = await Student.find({id:`${id}`});
+        if(initial){
+            const msg = {text:"again"}
+            res.send(msg);
+        }
+        else{
+            const student = new Student(name,id);
+            await student.save();
+            const msg = {text : "registered"}
+            res.send(msg);
+        }
+    }
+})
+
+
 app.get('/',(req,res)=>{
-    res.render('home');
+    var msg = req.query.text;
+    if(!msg){
+        msg = "nothing"
+    }
+    res.render('home',{msg});
 })
 
 app.get('/alumnis',async(req,res)=>{
@@ -155,7 +184,7 @@ app.delete('/alumnis/:id/comments/:comment_id',async(req,res)=>{
     res.redirect(`/alumnis/${id}`);
 })
 
-const port = process.env.PORT || 3000;
+const port = process.env.PORT;
 app.listen(port,()=>{
     console.log(`Listening on ${port}`);
 })
