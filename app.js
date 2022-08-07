@@ -81,7 +81,7 @@ app.get('/reg',(req,res)=>{
     // res.render('regis',{name,ID});
 })
 
-app.post('/reg',(req,res)=>{
+app.post('/reg', async(req,res)=>{
     const name = req.body.name;
     const id = req.body.id;
     const type = req.body.type;
