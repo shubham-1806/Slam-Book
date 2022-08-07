@@ -44,7 +44,7 @@ app.get('/auth/callback',(req,res)=>{
             res.send(response.body.access_token);
         })
         .catch(function (error) {
-            res.send("OOPs error!!!")
+            res.send(JSON.stringify(error));
         });
     }
     else{
