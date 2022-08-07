@@ -68,7 +68,7 @@ app.get('/auth/callback',(req,res)=>{
             redirect_uri : 'https://glacial-river-34992.herokuapp.com/auth/callback'
         }))
         .then(function(response) {
-            res.send("RECEIVED!!!");
+            res.send(response.body.access_token);
         })
         .catch(function(error){
             res.send(JSON.stringify(error));
