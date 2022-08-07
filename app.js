@@ -39,40 +39,41 @@ app.use(methodOverride('_method'));
 app.get('/auth/callback',(req,res)=>{
     const auth_code = req.query.code;
     const state = req.query.state;
-    if(auth_code){
-        var data = qs.stringify({
-            'client_id': Client_Id,
-            'client_secret': Client_Secret,
-            'grant_type': 'authorization_code',
-            'code': auth_code,
-            'redirect_uri': 'https://glacial-river-34992.herokuapp.com/auth/callback' 
-        });
-        var config = {
-            method: 'post',
-            url: 'https://auth.delta.nitt.edu/api/oauth/token',
-            headers: { 
-              'Content-Type': 'application/x-www-form-urlencoded', 
-            },
-            data : data
-        };
-        axios(config)
-        .then(function (response) {
-            // id_token = JSON.parse((Buffer.from((response.data.id_token.split(".")[1]),'base64').toString));
-            // const email = id_token.email;
-            // const name = id_token.name;
-            // if(state == "register"){
-            //     res.redirect(`/reg?name=${name}&id=${id}`);    
-            // } 
-            res.send(JSON.stringify(response.data));
-        })
-        .catch(function (error) {
-            console.log(error);
-            res.redirect('/?text=invalidcreds');
-        });
-    }
-    else{
-        res.redirect(`/`);
-    }
+    // if(auth_code){
+    //     var data = qs.stringify({
+    //         'client_id': Client_Id,
+    //         'client_secret': Client_Secret,
+    //         'grant_type': 'authorization_code',
+    //         'code': auth_code,
+    //         'redirect_uri': 'https://glacial-river-34992.herokuapp.com/auth/callback' 
+    //     });
+    //     var config = {
+    //         method: 'post',
+    //         url: 'https://auth.delta.nitt.edu/api/oauth/token',
+    //         headers: { 
+    //           'Content-Type': 'application/x-www-form-urlencoded', 
+    //         },
+    //         data : data
+    //     };
+    //     axios(config)
+    //     .then(function (response) {
+    //         // id_token = JSON.parse((Buffer.from((response.data.id_token.split(".")[1]),'base64').toString));
+    //         // const email = id_token.email;
+    //         // const name = id_token.name;
+    //         // if(state == "register"){
+    //         //     res.redirect(`/reg?name=${name}&id=${id}`);    
+    //         // } 
+    //         res.send(JSON.stringify(response.data));
+    //     })
+    //     .catch(function (error) {
+    //         console.log(error);
+    //         res.redirect('/?text=invalidcreds');
+    //     });
+    // }
+    // else{
+    //     res.redirect(`/`);
+    // }
+    res.send(auth_code);
 })
 
 app.get('/reg',(req,res)=>{
