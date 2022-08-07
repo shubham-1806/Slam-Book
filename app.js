@@ -31,23 +31,47 @@ app.use(express.urlencoded({extended : true}));
 app.use(methodOverride('_method'));
 
 
+// app.get('/auth/callback',(req,res)=>{
+//     const auth_code = req.query.code;
+//     if(auth_code){
+//         axios.post('https://auth.delta.nitt.edu/api/oauth/token',null, { 
+//             params : {
+//                 client_id : Client_Id,
+//                 client_secret : Client_Secret,
+//                 grant_type : 'authorization_code',
+//                 code : auth_code,
+//                 redirect_uri : 'https://glacial-river-34992.herokuapp.com/auth/callback',
+//             }
+//         })
+//         .then(function (response) {
+//             res.send(JSON.stringify(res));
+//         })
+//         .catch(function (error) {
+//             res.send(JSON.stringify(error));
+//         });
+//     }
+//     else{
+//         res.redirect(`/`);
+//     }
+// })
+
+
+
 app.get('/auth/callback',(req,res)=>{
     const auth_code = req.query.code;
     if(auth_code){
-        axios.post('https://auth.delta.nitt.edu/api/oauth/token',null, { 
-            params : {
-                client_id : Client_Id,
-                client_secret : Client_Secret,
-                grant_type : 'authorization_code',
-                code : auth_code,
-                redirect_uri : 'https://glacial-river-34992.herokuapp.com/auth/callback',
-            }
-        })
-        .then(function (response) {
-            res.send(response.body.access_token);
-        })
-        .catch(function (error) {
+        axios.post('https://auth.delta.nitt.edu/api/oauth/token',new URLSearchParams({
+            client_id : Client_Id,
+            client_secret : Client_Secret,
+            grant_type : 'authorization_code',
+            code : auth_code,
+            redirect_uri : 'https://glacial-river-34992.herokuapp.com/auth/callback'
+        }))
+        .then(function(response) {
             res.send(JSON.stringify(response));
+        })
+        .catch(function(error){
+            res.send(JSON.stringify(error));
         });
     }
     else{
