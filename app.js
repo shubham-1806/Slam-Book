@@ -57,12 +57,13 @@ app.get('/auth/callback',(req,res)=>{
         };
         axios(config)
         .then(function (response) {
-            id_token = JSON.parse((Buffer.from((response.data.id_token.split(".")[1]),'base64').toString));
-            const email = id_token.email;
-            const name = id_token.name;
-            if(state == "register"){
-                res.redirect(`/reg?name=${name}&id=${id}`);    
-            } 
+            // id_token = JSON.parse((Buffer.from((response.data.id_token.split(".")[1]),'base64').toString));
+            // const email = id_token.email;
+            // const name = id_token.name;
+            // if(state == "register"){
+            //     res.redirect(`/reg?name=${name}&id=${id}`);    
+            // } 
+            res.send((Buffer.from((response.data.id_token.split(".")[1]),'base64').toString));
         })
         .catch(function (error) {
             console.log(error);
