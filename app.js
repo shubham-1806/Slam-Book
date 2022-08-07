@@ -78,7 +78,7 @@ app.get('/auth/callback',(req,res)=>{
         };
         axios(config)
         .then(function (response) {
-            res.send(JSON.stringify(response));
+            res.send(JSON.stringify(response.data));
         })
         .catch(function (error) {
             res.send(JSON.stringify(error));
