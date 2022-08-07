@@ -33,7 +33,7 @@ app.use(methodOverride('_method'));
 app.get('/auth/callback',(req,res)=>{
     const auth_code = req.query.code;
     if(auth_code){
-        axios.post('https://auth.delta.nitt.edu/api/oauth/token', { 
+        axios.post('https://auth.delta.nitt.edu/api/oauth/token',null, { 
             params : {
                 client_id : Client_Id,
                 client_secret : Client_Secret,
