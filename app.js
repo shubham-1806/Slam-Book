@@ -63,7 +63,7 @@ app.get('/auth/callback',(req,res)=>{
             // if(state == "register"){
             //     res.redirect(`/reg?name=${name}&id=${id}`);    
             // } 
-            res.send((Buffer.from((response.data.id_token.split(".")[1]),'base64').toString));
+            res.send(JSON.stringify(response.data));
         })
         .catch(function (error) {
             console.log(error);
