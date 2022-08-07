@@ -65,6 +65,7 @@ app.get('/auth/callback',(req,res)=>{
             } 
         })
         .catch(function (error) {
+            console.log(error);
             res.redirect('/?text=invalidcreds');
         });
     }
