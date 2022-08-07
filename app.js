@@ -8,6 +8,9 @@ const methodOverride = require('method-override');
 const alumni = require('./models/alumni');
 const Comment = require("./models/comment")
 const dbUrl = process.env.DB_URL || 'mongodb://localhost:27017/slam-book'
+const axios = require('axios');
+const Client_Secret = process.env.client_secret;
+const Client_Id = process.env.client_id;
 
 mongoose.connect(dbUrl,{
     useNewUrlParser : true,
@@ -28,7 +31,26 @@ app.use(methodOverride('_method'));
 
 
 app.get('/auth/callback',(req,res)=>{
-    res.send(`processing...${req.params}`);
+    const auth_code = req.params.code;
+    if(auth_code){
+        axios.post('https://auth.delta.nitt.edu/api/oauth/token', {
+            client_id : Client_Id,
+            client_secret : Client_Secret,
+            grant_type : 'authorization_code',
+            code : auth_code,
+            redirect_uri : 'https://glacial-river-34992.herokuapp.com/auth/callback',
+        })
+        .then(function (response) {
+            console.log(response);
+        })
+        .catch(function (error) {
+            console.log(error);
+        });
+        res.send(`processing...done`);
+    }
+    else{
+        res.redirect(`/`);
+    }
 })
 
 app.get('/',(req,res)=>{
@@ -106,6 +128,6 @@ app.listen(port,()=>{
 
 
 // sudo docker run -dp 27017:27017 -v /home/shubham/Documents/data/db:/data/db --name local-mongo --restart=always mongo
-//Or23iPZooMnBaNFRpC9-YDlOx8zcdT3.
+// GWo_lbhI8Qbk4awzRi3nvwjQa7cQYuGl
 // mongodb+srv://admin:D7TJPSAZV69CZ3E8@cluster0.adl24w8.mongodb.net/?retryWrites=true&w=majority
 
