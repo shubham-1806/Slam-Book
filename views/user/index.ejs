@@ -1,63 +1,42 @@
+<!-- ignore -->
+
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Show</title>
+    <title>Alumnis</title>
+    <!-- <link href="../styles/index.css" type="text/css"> -->
 </head>
 <body>
     <input type="checkbox" id="active">
     <label for="active" class="menu-btn"><i class="fas fa-bars"></i></label>
     <div class="wrapper">
        <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/alumnis">All Alumnis</a></li>
-          <li><a href="#">Edit</a></li>
+          <li><a href="#">Home</a></li>
+          <li><a href="#">About</a></li>
+          <li><a href="#">Services</a></li>
           <li><a href="#">Gallery</a></li>
           <li><a href="#">Feedback</a></li>
        </ul>
     </div>
-    <div class="left_panel">
-        <div class="img">
-            <img class="img" src="" alt="Image not Uploaded" onerror=this.src="https://media.istockphoto.com/vectors/user-avatar-profile-icon-black-vector-illustration-vector-id1209654046?k=20&m=1209654046&s=612x612&w=0&h=Atw7VdjWG8KgyST8AXXJdmBkzn0lvgqyWod9vTb2XoE=" height="200px">
+    <div class="container">
+        <h1 class="head">All Alumnis</h1>
+        <div>
+            <a href="/alumnis/new">Register an Alummnus</a>
         </div>
-        <div class="deets">
-            <h1><%= alumni.name %></h1>
-            <h2><%= alumni.YearOfGraduation%></h2>
-        </div>
-        <p>
-            <form  class="del" action="/alumnis/<%=alumni._id%>?_method=DELETE" method="post">
-                <button>
-                    DELETE
-                </button>
-            </form>
-            <form class="del" action="/alumnis/<%=alumni._id%>/edit" method="get">
-                <button>
-                    EDIT
-                </button>
-            </form>
-            <a class="comment_btn" href="/alumnis/<%=alumni._id%>/add_comment">Add Comment</a>
-        </p>
-        <p>
-            <button></button>
-        </p>
-    </div>
-    <div class="comments_panel">
-        <% for(let comment of alumni.comments){ %>
-        <div class="comments">
-        <p class="bod">
-            <%=comment.body%>
-        </p>
-        <form action="/alumnis/<%=alumni._id%>/comments/<%=comment._id%>?_method=DELETE" method="post">
-          <button>Delete</button>
-        </form>
-        </div>
-        <% } %>
+        <ul class="lis">
+            <% for(let alumni of alumnis) {%>
+            <li class="alums"><a class="lin" href="/alumnis/<%=alumni._id%>"><%=alumni.name%></a></li>
+            <%}%>
+        </ul>
     </div>
 </body>
 <style>
-    body{
+
+body{
     background-color: #85FFBD;
 background-image: linear-gradient(45deg, #85FFBD 0%, #FFFB7D 100%);
 }
@@ -166,49 +145,32 @@ input[type="checkbox"]{
   font-size: 35px;
   font-weight: 600;
 }
-.img{
-    position: relative;
-    width: 75%;
-    height: 200px;
-}
-.left_panel{
-    padding-left: 3%;
-    width: 30%;
+.lis{
+    margin-left: 40%;
+    margin-top: 3%;
+    list-style: none;
+    margin-right: 40%;
     justify-content: center;
 }
-.deets{
-    position: relative;
+.lis :hover{
+    background-color: #c850c0;
+}
+
+h1 { color: #d54d7b; font-family: "Great Vibes", Cursive; font-size: 75px; line-height: 75px; font-weight: normal; margin-bottom: 0px; margin-top: 40px; text-align: center; text-shadow: 0 1px 1px #fff; }
+.alums{
     justify-content: center;
-    align-items: center;
-    line-height: 50px;
+    padding-bottom: 5%;  
+    text-align: center;
+    border-bottom : 1px solid black;
+
 }
-.comments_panel{
-    position: absolute;
-    height: 100%;
-    width: 70%;
-    left: 30%;
-    top: 0;
-    border-left: 1px solid black;
+
+.lin{
+    text-decoration: none;
+    color:black
 }
-.del{
-    display: inline;
-    padding-right: 5px;
-}
-.comment_btn{
-    display: inline;
-}
-.comments{
-  padding: 20px;
-  position: relative;
-  margin-left: 10px;
-  margin-right: 10px;
-  border: 1px solid black;
-  margin-top: 10px;
-}
-.bod{
-    padding: 3px;
-    padding-bottom: 10px;
-}
+
 </style>
 </html>
+
 

@@ -1,0 +1,17 @@
+body{
+    background-color: #85FFBD;
+    background-image: linear-gradient(45deg, #85FFBD 0%, #FFFB7D 100%);
+}
+.hed{
+    margin:auto;
+    width: 50%;
+    text-align: center;
+}
+.form{
+    padding-top: 5%;
+    margin: auto;
+    width: 50%;
+}
+.sbtbtn{
+    margin-top: 10px;
+}

@@ -1,9 +1,10 @@
 const mongoose = require('mongoose');
 const Schema = mongoose.Schema;
 
-const AlumniSchema = new Schema({
+const UserSchema = new Schema({
     name : String,
     Id : Number,
+    type : String,
     comments : [
         {
             type : Schema.Types.ObjectId,
@@ -12,5 +13,5 @@ const AlumniSchema = new Schema({
     ]
 });
 
-module.exports = mongoose.model('alumni', AlumniSchema);
+module.exports = mongoose.model('user', UserSchema);
 
