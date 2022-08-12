@@ -8,18 +8,14 @@
     <link href="/stylesheets/user/show.css" rel="stylesheet" type="text/css">
 </head>
 <body>
+    <header>
+        <div class="navbar">
+            <ul class="search options">
+                <li class="but"><a href="/home">Home</a></li>
+            </ul>
+        </div>
+    </header>
     <div class="hide" id="hid"><%=id%></div>
-    <input type="checkbox" id="active">
-    <label for="active" class="menu-btn"><i class="fas fa-bars"></i></label>
-    <div class="wrapper">
-       <ul>
-          <li><a href="/">Home</a></li>
-          <li><a href="/alumnis">All Alumnis</a></li>
-          <li><a href="#">Edit</a></li>
-          <li><a href="#">Gallery</a></li>
-          <li><a href="#">Feedback</a></li>
-       </ul>
-    </div>
     <div class="left_panel">
         <div class="img">
             <img class="img" src="" alt="Image not Uploaded" onerror=this.src="https://media.istockphoto.com/vectors/user-avatar-profile-icon-black-vector-illustration-vector-id1209654046?k=20&m=1209654046&s=612x612&w=0&h=Atw7VdjWG8KgyST8AXXJdmBkzn0lvgqyWod9vTb2XoE=" height="200px">
@@ -33,4 +29,3 @@
     <script src="/scripts/user/show.js"></script>
 </body>
 </html>
-

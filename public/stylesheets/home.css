@@ -1,0 +1,64 @@
+body{
+    background-color: #010000;
+}
+
+h1{
+    margin: 0;
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    justify-content: center;
+    display: flex;
+    color: green;
+}
+
+.himg{
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 30%;
+    padding-top: 5%;
+    padding-bottom: 50px;
+}
+
+.reg{
+    background-color: black;
+    color: white;
+    width: 200px;
+    height: 50px;
+    border-radius: 2px;
+    border-collapse: separate;
+    perspective: 1px;
+}
+.log{
+    background-color: black;
+    color: white;
+    width: 200px;
+    height: 50px;
+    border-radius: 2px;
+    border-collapse: separate;
+    perspective: 1px;
+}
+
+.regimg{
+    padding-top: 1px;
+    padding-left: 2px;
+    width: 10%;
+}
+
+.buttons{
+    position: absolute;
+    left: 0px;
+    right: 0px;
+    justify-content: center;
+    display: flex;
+}
+
+.regb{
+    padding-right: 10px;
+    perspective: 1px;
+}
+
+
+
+

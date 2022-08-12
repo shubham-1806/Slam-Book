@@ -51,8 +51,7 @@ axios.post(`/user/${to_find}`,null,{
         window.location.href =  '/?text=error'
     }
 }).catch((err)=>{
-    console.log(err);
-    // window.location.href = '/?text=unauthorised'
+    window.location.href = '/?text=unauthorised'
 })
 
 

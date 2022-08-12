@@ -267,84 +267,14 @@ app.post('/user/:id/:adder/add_comment',verify_token,async(req,res)=>{
     }
 })
 
-//ignore from here
+app.get('/home',(req,res)=>{
+    res.render('index');
+})
 
-// app.post('/login',verify_token,async(req,res)=>{
-//     const token = req.headers.authorization.split(" ")[1];
-//     const payload = jwt.decode(token);
-//     const ID = payload.id;
-//     const user_arr = await User.find({Id:`${ID}`}).exec();
-//     const user = user_arr[0];
-//     res.render('/user/show',{user});
-// })
-
-// app.get('/alumnis',async(req,res)=>{
-//     // const alumnis = await User.find({});
-//     // console.log(req.headers.authorization.split(" ")[1]);
-//     // res.render('alumnis/index',{alumnis});
-//     // const token = req.headers.authorization.split(" ")[1];
-//     const token = jwt.sign({
-//         what : "whatev"
-//     },Token_Secret, { expiresIn: '600s'});
-//     res.render('login',{token})
-// })
-
-// app.post('/alumnis', async (req,res)=>{
-//     const alumni = new User(req.body.alumni);
-//     await alumni.save();
-//     res.redirect(`/alumnis/${alumni._id}`);
-// })
-
-// app.get('/alumnis/new',(req,res)=>{
-//     res.render('user/new');
-// })
-
-// app.put('/alumnis/:id',async(req,res)=>{
-//     const id = req.params.id;
-//     const alumni = await Alumni.findByIdAndUpdate(id,{name : `${req.body.alumni.name}`, YearOfGraduation : `${req.body.alumni.YearOfGraduation}`});
-//     res.redirect(`/alumnis/${id}`);
-// })
-
-// app.get('/alumnis/:id',async(req,res)=>{
-//     const alumni = await Alumni.findById(req.params.id).populate('comments');
-//     res.render('user/show',{alumni});
-// })
-
-// app.delete('/alumnis/:id',async(req,res)=>{
-//     const id =req.params.id;
-//     const alumni = await Alumni.findById(id);
-//     for(let comm of alumni.comments){
-//         await Comment.findByIdAndDelete(comm._id);
-//     }
-//     await Alumni.findByIdAndDelete(id);
-//     res.redirect('/alumnis');
-// })
-
-// app.get('/alumnis/:id/edit',async(req,res)=>{
-//     const alumni = await Alumni.findById(req.params.id);
-//     res.render('user/edit',{alumni});
-// })
-
-// app.get('/alumnis/:id/add_comment',async(req,res)=>{
-//     const alumni = await Alumni.findById(req.params.id);
-//     res.render('user/new_comment',{alumni});
-// })
-
-// app.post('/alumnis/:id/comments', async(req,res)=>{
-//     const alumni = await Alumni.findById(req.params.id);
-//     const comment = new Comment(req.body.comment);
-//     alumni.comments.push(comment);
-//     await comment.save();
-//     await alumni.save();
-//     res.redirect(`/alumnis/${alumni._id}`);
-// })
-
-// app.delete('/alumnis/:id/comments/:comment_id',async(req,res)=>{
-//     const {id,comment_id} = req.params;
-//     await Alumni.findByIdAndUpdate(id,{$pull:{comments:comment_id}});
-//     await Comment.findByIdAndDelete(comment_id);
-//     res.redirect(`/alumnis/${id}`);
-// })
+app.post('/home',verify_token,async(req,res)=>{
+    const user = await User.find({});
+    res.status(200).send(user);
+})
 
 const port = process.env.PORT;
 app.listen(port,()=>{
@@ -352,8 +282,4 @@ app.listen(port,()=>{
 })
 
 
-
-
-// sudo docker run -dp 27017:27017 -v /home/shubham/Documents/data/db:/data/db --name local-mongo --restart=always mongo
-// GWo_lbhI8Qbk4awzRi3nvwjQa7cQYuGl
 
