@@ -85,59 +85,60 @@ app.get('/auth/callback',(req,res)=>{
     const auth_code = req.query.code;
     const state = req.query.state;
     if(auth_code){
-        var data = qs.stringify({
-            'client_id': Client_Id,
-            'client_secret': Client_Secret,
-            'grant_type': 'authorization_code',
-            'code': auth_code,
-            'redirect_uri': 'https://glacial-river-34992.herokuapp.com/auth/callback' 
-        });
-        var config = {
-            method: 'post',
-            url: 'https://auth.delta.nitt.edu/api/oauth/token',
-            headers: { 
-              'Content-Type': 'application/x-www-form-urlencoded', 
-            },
-            data : data
-        };
-        axios(config)
-        .then(function (response) {
-            id_token = JSON.parse((Buffer.from((response.data.id_token.split(".")[1]),'base64').toString()));
-            const email = id_token.email;
-            const name = id_token.name;
-            const ID = email.slice(0,-9);
-            if(state == "register"){
-                let token = jwt.sign({
-                    id : ID,
-                    name : name,
-                },Token_Secret, { expiresIn: '120s'});
-                res.redirect(`/reg?name=${name}&id=${token}`);    
-            }
-            else if(state == "login"){
-                async function proccess(){
-                    const initial = await User.find({Id:`${ID}`}).exec();
-                    if(initial.length!=0){
-                        const type = initial[0].type;
-                        let token = jwt.sign({
-                            id : ID,
-                            name : name,
-                            type : type
-                        },Token_Secret, { expiresIn: '600s'});
-                        token = "Bearer "+token;
-                        res.render('login',{token,ID});
-                    }
-                    else{
-                        res.redirect('/?text=register');
-                    }
-                }
-                proccess();
-            }
-        })
-        .catch(function (error) {
-            console.log(error);
-            console.log("here");
-            res.redirect('/?text=invalidcreds');
-        });
+        res.send(`localhost:3000/auth/callback?code=${auth_code}&state=${state}`);
+        // var data = qs.stringify({
+        //     'client_id': Client_Id,
+        //     'client_secret': Client_Secret,
+        //     'grant_type': 'authorization_code',
+        //     'code': auth_code,
+        //     'redirect_uri': 'https://glacial-river-34992.herokuapp.com/auth/callback' 
+        // });
+        // var config = {
+        //     method: 'post',
+        //     url: 'https://auth.delta.nitt.edu/api/oauth/token',
+        //     headers: { 
+        //       'Content-Type': 'application/x-www-form-urlencoded', 
+        //     },
+        //     data : data
+        // };
+        // axios(config)
+        // .then(function (response) {
+        //     id_token = JSON.parse((Buffer.from((response.data.id_token.split(".")[1]),'base64').toString()));
+        //     const email = id_token.email;
+        //     const name = id_token.name;
+        //     const ID = email.slice(0,-9);
+        //     if(state == "register"){
+        //         let token = jwt.sign({
+        //             id : ID,
+        //             name : name,
+        //         },Token_Secret, { expiresIn: '120s'});
+        //         res.redirect(`/reg?name=${name}&id=${token}`);    
+        //     }
+        //     else if(state == "login"){
+        //         async function proccess(){
+        //             const initial = await User.find({Id:`${ID}`}).exec();
+        //             if(initial.length!=0){
+        //                 const type = initial[0].type;
+        //                 let token = jwt.sign({
+        //                     id : ID,
+        //                     name : name,
+        //                     type : type
+        //                 },Token_Secret, { expiresIn: '600s'});
+        //                 token = "Bearer "+token;
+        //                 res.render('login',{token,ID});
+        //             }
+        //             else{
+        //                 res.redirect('/?text=register');
+        //             }
+        //         }
+        //         proccess();
+        //     }
+        // })
+        // .catch(function (error) {
+        //     console.log(error);
+        //     console.log("here");
+        //     res.redirect('/?text=invalidcreds');
+        // });
     }
     else{
         res.redirect(`/`);
@@ -223,11 +224,13 @@ app.post('/user/:id',verify_token,async(req,res)=>{
         const user = user_arr[0];
         comment_arr=[];
         let comments = user.comments
+        let comment_names = [];
         for(let i=0;i<comments.length;i++){
             const comment = await Comment.findById(comments[i]);
             comment_arr.push(comment.body);
+            comment_names.push(`${comment.name} (${comment.Id})`);
         }
-        res.send({user,comment_arr,finder_id});
+        res.send({user,comment_arr,finder_id,comment_names});
     }
     else{
         res.status(404).send("Not Found");
@@ -257,6 +260,7 @@ app.post('/user/:id/:adder/add_comment',verify_token,async(req,res)=>{
         const comment = new Comment();
         comment.Id = adder;
         comment.body = req.body.body;
+        comment.name = adder_arr[0].name;
         user.comments.push(comment);
         await comment.save();
         await user.save();

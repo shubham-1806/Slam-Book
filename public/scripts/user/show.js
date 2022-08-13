@@ -15,6 +15,7 @@ axios.post(`/user/${to_find}`,null,{
         const name = response.data.user.name;
         const type = response.data.user.type;
         const comments = response.data.comment_arr;
+        const comment_data = response.data.comment_names;
         // console.log(response);
         let el1 = document.createElement('h1');
         el1.innerText=name;
@@ -32,7 +33,7 @@ axios.post(`/user/${to_find}`,null,{
             let el = document.createElement('div');
             el.classList.add('comments');
             let ell = document.createElement('p');
-            ell.innerText = comments[i];
+            ell.innerText = `${comment_data[i]} \n`+comments[i];
             ell.classList.add('bod');
             el.appendChild(ell);
             comments_panel.appendChild(el);
