@@ -4,3 +4,4 @@ window.localStorage.setItem('token',token);
 
 window.location.href = `/user/${id}`
 
+//get hidden element on login page to store in localstorage

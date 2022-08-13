@@ -1,3 +1,5 @@
+//add links for button clicks on homepage
+
 let reg = document.querySelector('.reg');
 let log = document.querySelector('.log');
 

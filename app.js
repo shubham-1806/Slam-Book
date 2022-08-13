@@ -2,6 +2,8 @@ if(process.env.NODE_ENV!=="production"){
     require('dotenv').config();
 }
 
+//libraries,packages and modules to be used
+
 const express = require('express');
 const app = express();
 const path = require('path');
@@ -18,6 +20,8 @@ const qs = require('qs');
 const jwt = require('jsonwebtoken');
 const Token_Secret = process.env.token_secret;
 
+//create connection to the mongo database using mongoose
+
 mongoose.connect(dbUrl,{
     useNewUrlParser : true,
     useUnifiedTopology : true
@@ -29,6 +33,8 @@ db.on("error",console.error.bind(console,"connection error"));
 db.once("open",()=>{
     console.log("Database Connceted");
 })
+
+//set general things for the app 
 
 app.set('view engine','ejs');
 app.set('views',path.join(__dirname,'views'));
@@ -42,131 +48,159 @@ app.use(bodyParser.urlencoded({ extended: false }))
 // parse application/json
 app.use(bodyParser.json())
 
+//middleware to verify authentication and send data forward
 
 const verify_token = (req,res,next)=>{
+    
+    //get the token from the req header under authorisation (it'll be of the form "Bearer token")
+
     let token = req.headers.authorization.split(" ")[1];
+
+    //get token verified with the secret send 401 if signature is not in accordance and throw user to homepage
+
     jwt.verify(token,Token_Secret,(err,dec)=>{
         if(err){
-            res.status(401).send("Token sadge");
+            res.status(401).send("Token Issue");
         }
+
+        //if verified and token about to expire generate new token and pass it in the responses authorization header otherwise give the same token
+
         else{
-            const payload = jwt.decode(token);
-            const exp = payload.exp;
-            let curr = new Date();
+            const payload = jwt.decode(token);  //get token payload
+            const exp = payload.exp;            //get token exp time
+            let curr = new Date();              
             curr = curr.getTime();
             curr=Math.floor(curr/1000);
-            if((exp-curr) < 180){
-                const name = payload.name;
+            if((exp-curr) < 180){               //convert current time to epoch and compare given times (token time is in epoch secs)
+                const name = payload.name;      
                 const ID = payload.id;
                 const type = payload.type;
                 token = jwt.sign({
                     id : ID,
                     name : name,
                     type : type
-                },Token_Secret, { expiresIn: '600s'});
+                },Token_Secret, { expiresIn: '600s'}); // sign new token if time left is less than 3 mins
             }
-            // req.headers.authorization = "Bearer "+token;
-            res.header('authorization',"Bearer "+token);
+            res.header('authorization',"Bearer "+token); // pass token in response header
             next();
         }
     })
 }
 
+// first route (unprotected) is the home page which facilitates login and register 
+
 app.get('/',(req,res)=>{
-    var msg = req.query.text;
-    if(!msg){
-        msg = "nothing"
-    }
-    res.render('home',{msg});
+    res.render('home');
 })
 
+// callback page which is the redirect uri for dauth 
 
 app.get('/auth/callback',(req,res)=>{
-    const auth_code = req.query.code;
-    const state = req.query.state;
-    if(auth_code){
-        res.send(`localhost:3000/auth/callback?code=${auth_code}&state=${state}`);
-        // var data = qs.stringify({
-        //     'client_id': Client_Id,
-        //     'client_secret': Client_Secret,
-        //     'grant_type': 'authorization_code',
-        //     'code': auth_code,
-        //     'redirect_uri': 'https://glacial-river-34992.herokuapp.com/auth/callback' 
-        // });
-        // var config = {
-        //     method: 'post',
-        //     url: 'https://auth.delta.nitt.edu/api/oauth/token',
-        //     headers: { 
-        //       'Content-Type': 'application/x-www-form-urlencoded', 
-        //     },
-        //     data : data
-        // };
-        // axios(config)
-        // .then(function (response) {
-        //     id_token = JSON.parse((Buffer.from((response.data.id_token.split(".")[1]),'base64').toString()));
-        //     const email = id_token.email;
-        //     const name = id_token.name;
-        //     const ID = email.slice(0,-9);
-        //     if(state == "register"){
-        //         let token = jwt.sign({
-        //             id : ID,
-        //             name : name,
-        //         },Token_Secret, { expiresIn: '120s'});
-        //         res.redirect(`/reg?name=${name}&id=${token}`);    
-        //     }
-        //     else if(state == "login"){
-        //         async function proccess(){
-        //             const initial = await User.find({Id:`${ID}`}).exec();
-        //             if(initial.length!=0){
-        //                 const type = initial[0].type;
-        //                 let token = jwt.sign({
-        //                     id : ID,
-        //                     name : name,
-        //                     type : type
-        //                 },Token_Secret, { expiresIn: '600s'});
-        //                 token = "Bearer "+token;
-        //                 res.render('login',{token,ID});
-        //             }
-        //             else{
-        //                 res.redirect('/?text=register');
-        //             }
-        //         }
-        //         proccess();
-        //     }
-        // })
-        // .catch(function (error) {
-        //     console.log(error);
-        //     console.log("here");
-        //     res.redirect('/?text=invalidcreds');
-        // });
+    const auth_code = req.query.code;   //get auth code from query parameters generated by dauth
+    const state = req.query.state;      // get state depending on which button is clicked in '/' route
+    if(auth_code){                      //if route is triggered correctly 
+        
+        //if auth code is provided send a post request to the /api/oauth/token endpoint to get access_token
+
+        var data = qs.stringify({           //configure data to be sent in axios post request using qs
+            'client_id': Client_Id,
+            'client_secret': Client_Secret,
+            'grant_type': 'authorization_code',
+            'code': auth_code,
+            'redirect_uri': 'https://glacial-river-34992.herokuapp.com/auth/callback' 
+        });
+        var config = {                              //configure other details for request
+            method: 'post',
+            url: 'https://auth.delta.nitt.edu/api/oauth/token',
+            headers: { 
+              'Content-Type': 'application/x-www-form-urlencoded', 
+            },
+            data : data
+        };
+        axios(config)                                   //configure the request and send it
+
+        //if response is positive
+
+        .then(function (response) {                     
+            id_token = JSON.parse((Buffer.from((response.data.id_token.split(".")[1]),'base64').toString())); //get id_token from the resulting jwt given by dauth
+            const email = id_token.email;
+            const name = id_token.name;
+            const ID = email.slice(0,-9);       // get required user data from id_token
+            
+            // if state is register sign a jwt to ensure that roll no which is used to register is not tampered with
+
+            if(state == "register"){        
+                let token = jwt.sign({
+                    id : ID,
+                    name : name,
+                },Token_Secret, { expiresIn: '120s'});
+                res.redirect(`/reg?name=${name}&id=${token}`);    
+            }
+
+            //if state is login sign a jwt to store in local storage and verify on every request sent afterwards
+            //its saved in localstorage by redirecting to another page and doing it on client side
+            //its stored as a hidden element in the ejs of login
+
+            else if(state == "login"){
+                async function proccess(){
+                    const initial = await User.find({Id:`${ID}`}).exec();
+                    if(initial.length!=0){
+                        const type = initial[0].type;
+                        let token = jwt.sign({
+                            id : ID,
+                            name : name,
+                            type : type
+                        },Token_Secret, { expiresIn: '600s'});
+                        token = "Bearer "+token;
+                        res.render('login',{token,ID});
+                    }
+                    else{                                           //ensure user exists in database else throw him back to homepage '/'
+                        res.redirect('/?text=register');
+                    }
+                }
+                proccess();
+            }
+        })
+
+        //if response is negative the code is wrong and the user is thrown back to '/' route
+
+        .catch(function (error) {
+            res.redirect('/?text=invalidcreds');
+        });
     }
-    else{
+    else{                       //if route is triggered without dauth throw user back to '/'
         res.redirect(`/`);
     }
 })
 
+
+//registration get route(protected) which renders the registration form the roll no is taken from the jwt signed during auth callback and cant be changed to ensure correct registration and no hampering 
+
 app.get('/reg',(req,res)=>{
-    const name = req.query.name;
-    const token = req.query.id;
+    const name = req.query.name;    
+    const token = req.query.id;     
     try{
         const payload = jwt.decode(token);
         const ID = payload.id;
-        res.render('register.ejs',{name,ID});
+        res.render('register.ejs',{name,ID});   // name and id is passed in the ejs for register
     }
     catch(e){
-        res.redirect('/?text=tokenissue');
+        res.redirect('/?text=tokenissue');      // if token is wrong or not present user is thrown back to '/' page
     }
 })
 
+//registration post route to save user to the db
+
 app.post('/reg', async(req,res)=>{
-    const name = req.body.name;
+    const name = req.body.name;     //get details
     const id = req.body.id;
     const type = req.body.type;
-    if(/^\d+$/.test(id)){
+    if(/^\d+$/.test(id)){          //check if id is a number using regular expressions
+
         if(type === "alumni"){
             const initial = await User.find({Id:`${id}`}).exec();
             if(initial.length!=0){
-                const msg = {text:"again"}
+                const msg = {text:"again"}                  //if user already exists with that id send a response saying he/she is registering again
                 res.send(msg);
             }
             else{
@@ -175,16 +209,16 @@ app.post('/reg', async(req,res)=>{
                 alumni.Id =id;
                 alumni.type = "alumni";
                 await alumni.save();
-                const msg = {text : "registered"}
+                const msg = {text : "registered"}               //send response saying user has been registered
                 res.send(msg);
             }
         }
+
+
         else if(type === "student"){
             const initial = await User.find({Id:`${id}`}).exec();
-            console.log(initial);
             if(initial.length!=0){
-                const msg = {text:"again"}
-                console.log(`sent here with ${msg}`)
+                const msg = {text:"again"}                       //if user already exists with that id send a response saying he/she is registering again
                 res.send(msg);
             }
             else{
@@ -193,60 +227,95 @@ app.post('/reg', async(req,res)=>{
                 student.Id = id;
                 student.type = "student";
                 let gg = await student.save();
-                const msg = {text:"registered"}
-                console.log(`sent with done`)
+                const msg = {text:"registered"}                  //send response saying user has been registered
                 res.send(msg);
             }
         }
+
+
         else{
-            const msg = {text:"und"}
+            const msg = {text:"und"}                            // if type is not above two 
             res.send(msg);
         }
     }
-    else{
+
+
+    else{                                   //ask user to give details correctly
         const msg = {text:"und"}
         res.send(msg);
     }
 })
 
+
+// user profile get page (unprotected)
+
 app.get('/user/:id',(req,res)=>{
-    const id = req.params.id;
+    const id = req.params.id;       //pass id to ejs so that server knows which route to send post request for the data
     res.render('user/show',{id});
 })
+
+//post route (protected) for user profile page to get info about that user
+//middleware verify token is used for authorisation
 
 app.post('/user/:id',verify_token,async(req,res)=>{
     const token = res.getHeaders()['authorization'].split(" ")[1];
     const payload = jwt.decode(token);
-    const finder_id = payload.id;
+    const finder_id = payload.id;           //finder id and user id is determined using token sent in req
     const id = req.params.id;
-    const user_arr = await User.find({Id:`${id}`}).exec();
+    const user_arr = await User.find({Id:`${id}`}).exec();          //check if user with given user id exists
     if(user_arr.length!=0){
         const user = user_arr[0];
         comment_arr=[];
         let comments = user.comments
         let comment_names = [];
+        let comment_ids = [];
         for(let i=0;i<comments.length;i++){
             const comment = await Comment.findById(comments[i]);
             comment_arr.push(comment.body);
-            comment_names.push(`${comment.name} (${comment.Id})`);
+            comment_names.push(`${comment.name} (${comment.Id})`);  //the comments attribute of user stores the object ids of the comments made on that user
+            comment_ids.push(comments[i]);
         }
-        res.send({user,comment_arr,finder_id,comment_names});
+        res.send({user,comment_arr,finder_id,comment_names,comment_ids});       //after finding send the data user info comments info and the finder id
     }
-    else{
+    else{                                                           // if not found send a 404
         res.status(404).send("Not Found");
     }
 })
 
+//delete route (protected) to delete a particular comment on a user
+
+
+app.delete('/user/:id/:commentid',verify_token,async(req,res)=>{
+    const id = req.params.id;
+    const comment_id = req.params.commentid;
+    await Comment.findByIdAndDelete(comment_id);        //delete comment
+    let ussr = await User.find({Id:id}).exec();
+    const user = await User.findById(ussr[0]._id);
+    for(let i=0;i<user.comments.length;i++){
+        if(user.comments[i]==comment_id){           //delete its refernce in user.comments
+            user.comments.splice(i,1);
+            await user.save();
+            break;
+        }
+    }
+    res.status(200).send("Deleted");                //send deleted response
+})
+
+//get route (unprotected) for adding a comment on user takes user id and adder id as request params
+
+
 app.get('/user/:id/:adder/add_comment',async(req,res)=>{
-    const user = await User.find({Id:req.params.id}).exec();
+    const user = await User.find({Id:req.params.id}).exec();        //see if given user exists
     if(user.length==0){
-        res.redirect('/?text=nouser');
+        res.redirect('/?text=nouser');                          //if no user throw to '/' route
     }
     else{
-        const name = user[0].name
-        res.render('user/add_comment',{name});
+        const name = user[0].name                           
+        res.render('user/add_comment',{name});                      //if user is found render the add comment ejs page and pass name into it
     }
 })
+
+//post route (protected) for adding comment on a user
 
 app.post('/user/:id/:adder/add_comment',verify_token,async(req,res)=>{
     const token = res.getHeaders()['authorization'].split(" ")[1];
@@ -255,30 +324,36 @@ app.post('/user/:id/:adder/add_comment',verify_token,async(req,res)=>{
     const adder = payload.id;
     const user_arr = await User.find({Id:to_add}).exec();
     const adder_arr = await User.find({Id:adder}).exec();
-    if(adder_arr.length>0 && adder!=to_add){
+    if(adder_arr.length>0 && adder!=to_add){                    //verify if person trying to add exists by assesing the token
         const user = user_arr[0];
-        const comment = new Comment();
+        const comment = new Comment();                          //create coment object
         comment.Id = adder;
         comment.body = req.body.body;
         comment.name = adder_arr[0].name;
         user.comments.push(comment);
-        await comment.save();
+        await comment.save();                                   //add data and save
         await user.save();
         res.send("Added");
     }
     else{
-        res.status(401).send("User not registered");
+        res.status(401).send("User not registered");            //if user not registered send a 401
     }
 })
+
+//get route (unprotected) to display index page
 
 app.get('/home',(req,res)=>{
     res.render('index');
 })
 
+//post route (protected) to send data of all users
+
 app.post('/home',verify_token,async(req,res)=>{
     const user = await User.find({});
     res.status(200).send(user);
 })
+
+//app.listen to start app
 
 const port = process.env.PORT;
 app.listen(port,()=>{
